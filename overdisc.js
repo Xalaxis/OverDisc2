@@ -6,12 +6,17 @@ const Discordclient = new Discord.Client();
 const fs = require("fs");
 
 const configFile = JSON.parse(fs.readFileSync("config.json", "utf8"));
+const packageFile = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 Redisclient.on("ready", () => console.log("Redis Ready"));
 
 Redisclient.on("error", (err) => console.log("Error " + err));
 
-Discordclient.on('ready', () => console.log(`Logged in as ${Discordclient.user.tag}!`));
+Discordclient.on('ready', () => {
+	console.log(`Logged in as ${Discordclient.user.tag}!`);
+	Discordclient.user.setActivity(`OverDisc 2 v${packageFile.version}`, 1);
+	console.log(`Status set as "OverDisc 2 v${packageFile.version}"`);
+});
 
 Discordclient.on('message', msg => {
 	if (msg.content.startsWith === configFile.delim || msg.author.bot) return;
@@ -26,7 +31,7 @@ Discordclient.on('message', msg => {
 
 	else if (command === `config`) {
 		if (!args.length) {
-			return msg.channel.send(`Command help: ${configFile.delim}config\n\noverwatchtag - Sets your Overwatch tag`)
+			return msg.channel.send(`Command help: ${configFile.delim}config\n\noverwatchtag - Sets your Overwatch tag`);
 		}
 		// We're configuring someone.  Let's find out what setting they are using
 		if (args[0].toLowerCase() === "overwatchtag") {
@@ -50,7 +55,7 @@ Discordclient.on('message', msg => {
 			msg.channel.send(`Command help: ${configFile.delim}config
 			\n
 			\n
-			overwatchtag - Sets your Overwatch tag`)
+			overwatchtag - Sets your Overwatch tag`);
 		}
 	}
 
