@@ -16,7 +16,13 @@ Discordclient.on('ready', () => {
 	console.log(`Logged in as ${Discordclient.user.tag}!`);
 	Discordclient.user.setActivity(`OverDisc 2 v${packageFile.version}`, 1);
 	console.log(`Status set as "OverDisc 2 v${packageFile.version}"`);
+	// console.log(Discordclient.channels);
 });
+
+function adminLog(message) {
+	const adminChannel = Discordclient.channels.get(configFile.adminchannel);
+	adminChannel.send(`[DEBUG]${message}`);
+}
 
 Discordclient.on('message', msg => {
 	if (msg.content.startsWith === configFile.delim || msg.author.bot) return;
@@ -25,9 +31,10 @@ Discordclient.on('message', msg => {
 	const command = args.shift().toLowerCase();
 	if (command === `ping`) {
 		console.log(`${msg.author.tag} has just pinged us!`);
+		adminLog(`${msg.author.tag} has just pinged us!`);
 		console.log(`Their ID is ${msg.author.id}`);
 		msg.channel.send('pong');
-	}
+	}	
 
 	else if (command === `config`) {
 		if (!args.length) {
