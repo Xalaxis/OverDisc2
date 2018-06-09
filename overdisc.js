@@ -4,6 +4,7 @@ const Redisclient = redis.createClient();
 const Discord = require("discord.js");
 const Discordclient = new Discord.Client();
 const fs = require("fs");
+const schedule = require('node-schedule');
 
 const configFile = JSON.parse(fs.readFileSync("config.json", "utf8"));
 const packageFile = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -23,6 +24,22 @@ function adminLog(message) {
 	const adminChannel = Discordclient.channels.get(configFile.adminchannel);
 	adminChannel.send(`[DEBUG]${message}`);
 }
+
+function isAdmin(id) {
+	if (id == configFile.adminid) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+const clean = text => {
+	if (typeof(text) === "string")
+	  return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
+	else
+		return text;
+  }
 
 Discordclient.on('message', msg => {
 	if (msg.content.startsWith === configFile.delim || msg.author.bot) return;
@@ -71,6 +88,17 @@ Discordclient.on('message', msg => {
 			return msg.channel.send(`You didn't provide any arguments, ${msg.author}!`);
 		}
 		msg.channel.send(`Command name: ${command}\nArguments: ${args}`);
+	}
+
+	else if (command === "admin") {
+		if (!args.length) {
+			return;
+		}
+		if (args[0].toLowerCase() === "restart") {
+			msg.channel.send("Bot restarting 🔁").then( // TODO: Why doesn't this work?
+				process.exit()
+			);
+		}
 	}
 });
 
