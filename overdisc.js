@@ -5,6 +5,15 @@ const Discord = require("discord.js");
 const Discordclient = new Discord.Client();
 const fs = require("fs");
 const schedule = require('node-schedule');
+Discordclient.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+
+    // set a new item in the Collection
+    // with the key as the command name and the value as the exported module
+    Discordclient.commands.set(command.name, command);
+}
 
 const configFile = JSON.parse(fs.readFileSync("config.json", "utf8"));
 const packageFile = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -47,58 +56,13 @@ Discordclient.on('message', msg => {
 	const args = msg.content.slice(configFile.delim.length).split(' ');
 	const command = args.shift().toLowerCase();
 	if (command === `ping`) {
-		console.log(`${msg.author.tag} has just pinged us!`);
-		adminLog(`${msg.author.tag} has just pinged us!`);
-		console.log(`Their ID is ${msg.author.id}`);
-		msg.channel.send('pong');
-	}	
-
-	else if (command === `config`) {
-		if (!args.length) {
-			return msg.channel.send(`Command help: ${configFile.delim}config\n\noverwatchtag - Sets your Overwatch tag`);
-		}
-		// We're configuring someone.  Let's find out what setting they are using
-		if (args[0].toLowerCase() === "overwatchtag") {
-			// Let's set their Overwatch tag
-			if (args[1]) {
-				Redisclient.hset(`users:${msg.author.id}`, `Overwatch_Tag`, args[1]);
-				msg.channel.send(`Your overwatch tag has been set to ${args[1]} ✅`);
-			}
-			else if (Redisclient.hexists(`users:${msg.author.id}`, `Overwatch_Tag`)) {
-				Redisclient.hget(`users:${msg.author.id}`, `Overwatch_Tag`, function(err, reply) {
-					const overwatchtag = reply;
-					msg.channel.send(`Your current Overwatch tag is ${overwatchtag}`);
-				});
-			}
-			else {
-				msg.channel.send(`Command help: ${configFile.delim}config overwatchtag <tag>\n\n<tag> - Your Overwatch tag`);
-			}
-
-		}
-		else {
-			msg.channel.send(`Command help: ${configFile.delim}config
-			\n
-			\n
-			overwatchtag - Sets your Overwatch tag`);
-		}
+		Discordclient.commands.get("ping").execute(msg, args);
 	}
-
-	else if (command === 'args-info') {
-		if (!args.length) {
-			return msg.channel.send(`You didn't provide any arguments, ${msg.author}!`);
-		}
-		msg.channel.send(`Command name: ${command}\nArguments: ${args}`);
+	else if (command == `config`) {
+		Discordclient.commands.get("config").execute(msg, args, Redisclient);
 	}
-
-	else if (command === "admin") {
-		if (!args.length) {
-			return;
-		}
-		if (args[0].toLowerCase() === "restart") {
-			msg.channel.send("Bot restarting 🔁").then( // TODO: Why doesn't this work?
-				process.exit()
-			);
-		}
+	else if (command == `debug`) {
+		Discordclient.commands.get("debug").execute(msg, args, Redisclient);
 	}
 });
 

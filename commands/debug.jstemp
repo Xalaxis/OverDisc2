@@ -1,0 +1,17 @@
+else if (command === 'args-info') {
+    if (!args.length) {
+        return msg.channel.send(`You didn't provide any arguments, ${msg.author}!`);
+    }
+    msg.channel.send(`Command name: ${command}\nArguments: ${args}`);
+}
+
+else if (command === "admin") {
+    if (!args.length) {
+        return;
+    }
+    if (args[0].toLowerCase() === "restart") {
+        msg.channel.send("Bot restarting 🔁").then( // TODO: Why doesn't this work?
+            process.exit()
+        );
+    }
+}
