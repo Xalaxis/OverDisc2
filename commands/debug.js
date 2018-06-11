@@ -7,9 +7,19 @@ module.exports = {
         if (args.length) {
             if (args[0].toLowerCase() === "getrank") {
                 if (Redisclient.hexists(`users:${msg.author.id}`, `Overwatch_Tag`)) {
-                    owjs.getOverall('pc', 'eu', Redisclient.hget(`users:${msg.author.id}`, `Overwatch_Tag`)) // TODO: Convert # to - for query
-                    .then((data) => console.dir(data, {depth : 2, colors : true}))
-                    .catch(err => console.log(err));
+                    Redisclient.hget(`users:${msg.author.id}`, `Overwatch_Tag`, function (err, reply) {
+                        msg.channel.send(`Looking up ${reply.replace("#", "-")} 🔄`);
+                        owjs.getOverall('pc', 'eu', reply.replace("#", "-"))
+                        .then((data) => {
+                            msg.channel.send(`\`\`\`js\n\n${JSON.stringify(data.profile)}\`\`\``);
+                            msg.channel.messages.fetch({around: "352292052538753025", limit: 1})
+                            .then(messages => {
+                                messages.first().edit("This fetched message was edited");
+                            });
+                            console.log(data);
+                        })
+                        .catch(err => console.log(err));
+                    })
                 }
             }
         }
