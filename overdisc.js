@@ -6,6 +6,7 @@ const Discordclient = new Discord.Client();
 const fs = require("fs");
 const schedule = require('node-schedule');
 Discordclient.commands = new Discord.Collection();
+
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
@@ -19,7 +20,6 @@ const configFile = JSON.parse(fs.readFileSync("config.json", "utf8"));
 const packageFile = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 Redisclient.on("ready", () => console.log("Redis Ready"));
-
 Redisclient.on("error", (err) => console.log("Error " + err));
 
 Discordclient.on('ready', () => {
@@ -28,27 +28,6 @@ Discordclient.on('ready', () => {
 	console.log(`Status set as "OverDisc 2 v${packageFile.version}"`);
 	// console.log(Discordclient.channels);
 });
-
-function adminLog(message) {
-	const adminChannel = Discordclient.channels.get(configFile.adminchannel);
-	adminChannel.send(`[DEBUG]${message}`);
-}
-
-function isAdmin(id) {
-	if (id == configFile.adminid) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-const clean = text => {
-	if (typeof(text) === "string")
-	  return text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203));
-	else
-		return text;
-  }
 
 Discordclient.on('message', msg => {
 	if (msg.content.startsWith === configFile.delim || msg.author.bot) return;
