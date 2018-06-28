@@ -11,11 +11,8 @@ module.exports = {
                         msg.channel.send(`Looking up ${reply.replace("#", "-")} 🔄`);
                         owjs.getOverall('pc', 'eu', reply.replace("#", "-"))
                         .then((data) => {
+                            // Send the profile information formatted as a JavaScript file in a code block
                             msg.channel.send(`\`\`\`js\n\n${JSON.stringify(data.profile)}\`\`\``);
-                            msg.channel.messages.fetch({around: "352292052538753025", limit: 1})
-                            .then(messages => {
-                                messages.first().edit("This fetched message was edited");
-                            });
                             console.log(data);
                         })
                         .catch(err => console.log(err));
